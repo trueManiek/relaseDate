@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Release Countdown</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+      color: #1f1f1f;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 24px;
+    }
+
+    .today {
+      color: #666;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .release {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+    }
+
+    .release-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .release-name {
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    .release-date {
+      margin-top: 5px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .days {
+      font-size: 22px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .past {
+      color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Releases</h1>
+
+    <div id="today" class="today"></div>
+
+    <div id="releases"></div>
+  </div>
+
+  <script>
+    // ---------------------------------------------------
+    // EDIT RELEASES HERE
+    // ---------------------------------------------------
+
+    const releases = [
+      {
+        name: "Release 1",
+        date: "2026-09-16"
+      },
+      {
+        name: "Release 2",
+        date: "2026-09-24"
+      },
+      {
+        name: "Release 3",
+        date: "2026-10-15"
+      },
+      {
+        name: "Release 4",
+        date: "2026-10-22"
+      }
+    ];
+
+    // ---------------------------------------------------
+
+    function getToday() {
+      const now = new Date();
+
+      return new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+      );
+    }
+
+    function parseDate(dateString) {
+      const [year, month, day] = dateString.split("-").map(Number);
+
+      return new Date(year, month - 1, day);
+    }
+
+    function getDaysLeft(targetDate) {
+      const today = getToday();
+      const target = parseDate(targetDate);
+
+      const millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+      return Math.round(
+        (target - today) / millisecondsPerDay
+      );
+    }
+
+    function formatDate(dateString) {
+      const date = parseDate(dateString);
+
+      return date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function formatToday() {
+      return getToday().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function render() {
+      document.getElementById("today").textContent =
+        "Today: " + formatToday();
+
+      const container = document.getElementById("releases");
+
+      container.innerHTML = "";
+
+      releases
+        .sort((a, b) => parseDate(a.date) - parseDate(b.date))
+        .forEach(release => {
+          const daysLeft = getDaysLeft(release.date);
+
+          let daysText;
+
+          if (daysLeft > 1) {
+            daysText = `${daysLeft} days`;
+          } else if (daysLeft === 1) {
+            daysText = "1 day";
+          } else if (daysLeft === 0) {
+            daysText = "TODAY";
+          } else {
+            daysText = "Released";
+          }
+
+          const element = document.createElement("div");
+
+          element.className =
+            "release" + (daysLeft < 0 ? " past" : "");
+
+          element.innerHTML = `
+            <div class="release-header">
+
+              <div>
+                <div class="release-name">
+                  ${release.name}
+                </div>
+
+                <div class="release-date">
+                  ${formatDate(release.date)}
+                </div>
+              </div>
+
+              <div class="days">
+                ${daysText}
+              </div>
+
+            </div>
+          `;
+
+          container.appendChild(element);
+        });
+    }
+
+    render();
+  </script>
+</body>
+</html>
